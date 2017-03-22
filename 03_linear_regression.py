@@ -6,7 +6,7 @@ import tensorflow as tf
 
 num_points = 22 
 vectors_set = []
-# x : house price, y: sqft
+# x : sqft, y : house price
 vectors_set.append([1250, 580000])
 vectors_set.append([1230, 540000])
 vectors_set.append([1300, 600000])
