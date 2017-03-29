@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from pylab import meshgrid,cm,imshow,contour,clabel,colorbar,axis,title,show
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 # adding 22 actual sqft, price, and bedroom(s) of the house sold recently, train them, and estimate three new house price based on sqft when it's on the market
 
@@ -34,17 +38,6 @@ x_data = [v[0] for v in vectors_set]
 y_data = [v[1] for v in vectors_set]
 z_data = [v[2] for v in vectors_set]
 
-# not sure it it's the best idea to visualize current state or even need if it has more than two features though...
-fig, ax1 = plt.subplots()
-ax2 = ax1.twinx()
-ax1.plot(x_data, y_data, 'g-')
-ax2.plot(x_data, z_data, 'b-')
-
-ax1.set_xlabel('sqft')
-ax1.set_ylabel('bedroom')
-ax2.set_ylabel('price')
-plt.show()
-
 W1 = tf.Variable(tf.random_uniform([1], -1.0, 1.0))
 W2 = tf.Variable(tf.random_uniform([1], -1.0, 1.0))
 b = tf.Variable(tf.zeros([1]))
@@ -55,7 +48,7 @@ loss = tf.reduce_mean(tf.square(z - z_data))
 optimizer = tf.train.GradientDescentOptimizer(0.00000005)
 train = optimizer.minimize(loss)
 
-init = tf.initialize_all_variables()
+init = tf.global_variables_initializer()
 
 sess = tf.Session()
 sess.run(init)
@@ -66,6 +59,17 @@ for step in xrange(15):
      print(step, sess.run(W2), sess.run(b))
      print(step, sess.run(loss))
 
+# visualize
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+X, Y = meshgrid(x_data, y_data)
+surf = ax.plot_surface(X, Y, z.eval(session=sess), rstride=10, cstride=1, cmap=cm.RdBu,linewidth=0, antialiased=False)
+fig.colorbar(surf, shrink=0.5, aspect=5)
+# Set rotation angle to 90 degrees since there isn't much visibility with default angle.
+ax.view_init(azim=90)
+plt.show()
+
+    
 # now we get W1, W2, b, so we can guess how much house price is going to be for given sqft and # of bedrooms
 estimate_vectors_set = []
 estimate_vectors_set.append([1250,2])
